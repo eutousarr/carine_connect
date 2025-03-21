@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id          String   @id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String?  @db.VarChar(255)
+  content     String?
+  image       String?  @db.VarChar(255)
+  authorId    String?
+  authorName  String?
+  authorImage String?
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  imageUrl    String
+  authorId    String
+  authorName  String
+  authorImage String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Contact {
+  id          Int      @id @default(autoincrement())
+  prenom      String
+  nom         String
+  email       String   @unique
+  description String?
+  phone       String?
+  adresse     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+}
+
+model Eleve {
+  id           String         @id @default(cuid())
+  matricule    String
+  nom          String
+  prenom       String
+  sexe         String
+  datenais     String?
+  lieunais     String?
+  adresse      String?
+  email        String?
+  phone        String?
+  photo        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  inscriptions Inscription[]
+  notes        Note[]
+  resultats    Resultat[]
+
+  @@map("eleves")
+}
+
+model Inscription {
+  id        String   @id @default(cuid())
+  annee     Annee    @default(AnScol_2025_2026)
+  classe    Classe   @default(CI)
+  montant   Int?     @default(0)
+  frais     Int?     @default(0)
+  moyenne1  Float?   @default(0)
+  moyenne2  Float?   @default(0)
+  moyenne3  Float?   @default(0)
+  eleveId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  eleves    Eleve   @relation(fields: [eleveId], references: [id])
+
+  @@map("inscriptions")
+}
+
+model Note {
+  id            String @id @default(cuid())
+  eleveId       String
+  annee         Annee
+  trimestre     String @default("1er")
+  ortho         Float?
+  production    Float?
+  vocabulaire   Float?
+  grammaire     Float?
+  lecture       Float?
+  conjugaison   Float?
+  ecriture      Float?
+  numeriques    Float?
+  mesures       Float?
+  geometrie     Float?
+  probleme      Float?
+  histoire      Float?
+  geographie    Float?
+  ist           Float?
+  vivreEnsemble Float?
+  vivreMilieu   Float?
+  dessin        Float?
+  recitation    Float?
+  total         Float?
+  moyenne       Float?
+  rang          Int?
+  eleves        Eleve @relation(fields: [eleveId], references: [id])
+
+  @@map("notes")
+}
+
+model Resultat {
+  id          String   @id @default(cuid())
+  eleveId     String
+  annee       String?
+  moyenne     Float?
+  rang        Int?
+  decision    Conseil? @default(Passe)
+  observation String?
+  eleves      Eleve   @relation(fields: [eleveId], references: [id])
+
+  @@map("resultats")
+}
+
+enum Annee {
+  AnScol_2021_2022
+  AnScol_2022_2023
+  AnScol_2023_2024
+  AnScol_2024_2025
+  AnScol_2025_2026
+  AnScol_2026_2027
+  AnScol_2027_2028
+  AnScol_2028_2029
+  AnScol_2029_2030
+}
+
+enum Classe {
+  CI
+  CP
+  CE1
+  CE2
+  CM1
+  CM2
+}
+
+enum Conseil {
+  Passe
+  Redouble
+  examen
+  Exclu
+}
