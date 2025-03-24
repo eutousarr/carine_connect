@@ -13,9 +13,14 @@ import { usePathname } from "next/navigation";
 
 const routes = [
   {
-    label: "Mon Ecole",
-    reference: "about",
-    path: "/about",
+    label: "Blog",
+    reference: "blog",
+    path: "/blog",
+  },
+  {
+    label: "Students",
+    reference: "students",
+    path: "/students",
   },
   {
     label: "Dashboard",
@@ -75,7 +80,7 @@ export function Navbar() {
         </>
       ) : user ? (
         <div className="flex items-center gap-4">
-          <p>{user.given_name} {user.firstName}</p>
+          <p>{user.name} {user.email}</p>
           <Link
             href="/articles"
             className="text-sm font-medium hover:text-blue-500 transition-colors"

@@ -41,11 +41,10 @@ model Contact {
   adresse     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
 }
 
 model Eleve {
-  id           String         @id @default(cuid())
+  id           String        @id @default(cuid())
   matricule    String
   nom          String
   prenom       String
@@ -56,13 +55,31 @@ model Eleve {
   email        String?
   phone        String?
   photo        String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   inscriptions Inscription[]
   notes        Note[]
   resultats    Resultat[]
 
   @@map("eleves")
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  matricule String
+  nom       String
+  prenom    String
+  sexe      String
+  datenais  String?
+  lieunais  String?
+  adresse   String?
+  email     String?
+  phone     String?
+  photo     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("students")
 }
 
 model Inscription {
@@ -77,16 +94,25 @@ model Inscription {
   eleveId   String
   createdAt DateTime @default(now())
   updatedAt DateTime
-  eleves    Eleve   @relation(fields: [eleveId], references: [id])
+  eleves    Eleve    @relation(fields: [eleveId], references: [id])
 
   @@map("inscriptions")
 }
 
+model Trimestre {
+  id      String @id @default(cuid())
+  libelle String
+  notes   Note[]
+
+  @@map("trimestres")
+}
+
 model Note {
-  id            String @id @default(cuid())
+  id            String    @id @default(cuid())
   eleveId       String
   annee         Annee
-  trimestre     String @default("1er")
+  trimestreId   String   
+  trimestre     Trimestre @relation(fields: [trimestreId], references: [id])
   ortho         Float?
   production    Float?
   vocabulaire   Float?
@@ -108,7 +134,7 @@ model Note {
   total         Float?
   moyenne       Float?
   rang          Int?
-  eleves        Eleve @relation(fields: [eleveId], references: [id])
+  eleves        Eleve     @relation(fields: [eleveId], references: [id])
 
   @@map("notes")
 }
@@ -121,7 +147,7 @@ model Resultat {
   rang        Int?
   decision    Conseil? @default(Passe)
   observation String?
-  eleves      Eleve   @relation(fields: [eleveId], references: [id])
+  eleves      Eleve    @relation(fields: [eleveId], references: [id])
 
   @@map("resultats")
 }

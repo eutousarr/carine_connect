@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { getImageUrl} from "@/lib/image"
 import { NextResponse } from "next/server";
 
-export async function handleSubmission(formData: FormData ) {
+export async function  handleSubmission(formData: FormData ) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 

@@ -1,7 +1,13 @@
 import { prisma } from '@/app/utils/db';
 // import { Eleve } from '@/types/students';
 
-const eleves = await prisma.eleve.findMany({})
+const eleves = await prisma.eleve.findMany({
+    include: {
+      notes: true,
+      inscriptions: true,
+      resultats: true
+    }
+})
 export default eleves
 
 

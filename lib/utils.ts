@@ -23,6 +23,24 @@ export function moyenneFixed(x: number, n: number = 2) {
   return x.toFixed(n);
 }
 
+export function appreciationNote(note: number) {
+
+  if (note <= 3) {
+    return "Médiocre";
+  }else if  (note <= 5) {
+    return "Insuffisant";
+  } else if (note <= 7) {
+    return "Assez bien";
+  } else if (note <= 8) {
+    return "Bien";
+  } else {
+    return "Excellent";
+  }
+}
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export const generatePagination = (currentPage: number, totalPages: number) => {
   if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);

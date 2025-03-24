@@ -38,7 +38,7 @@ const StudentsTable = async ({ limit, title }: StudentsTableProps) => {
 
   return (
     <div className='mt-10'>
-      <h3 className='text-2xl mb-4 font-semibold'>{title ? title : 'Posts'}</h3>
+      <h3 className='text-2xl mb-4 font-semibold'>{title ? title : 'Students'}</h3>
       <Table>
         <TableCaption>A list students</TableCaption>
         <TableHeader>
@@ -70,9 +70,9 @@ const StudentsTable = async ({ limit, title }: StudentsTableProps) => {
               </TableCell>
                   <TableCell>{student.notes[0]["rang"]} è</TableCell>
               <TableCell>
-                <Link href={`/students/edit/${student.id}`}>
+                <Link href={`/students/${student.id}`}>
                   <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
-                    Edit
+                    Bulletin
                   </button>
                 </Link>
               </TableCell>
