@@ -18,7 +18,7 @@ interface IappProps {
 export function BlogPostCard({ data }: IappProps) {
   return (
     <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-all hover:shadow-lg">
-      <Link href={`/articles/${data.id}`} className="block w-full h-full">
+      <Link href={`/blog/${data.id}`} className="block w-full h-full">
         <div className="relative h-48 w-full overflow-hidden">
           <Image
             src={data.imageUrl}
@@ -53,7 +53,7 @@ export function BlogPostCard({ data }: IappProps) {
             </div>
 
             <time className="text-xs text-gray-500">
-              {new Intl.DateTimeFormat("en-US", {
+              {new Intl.DateTimeFormat("fr-FR", {
                 year: "numeric",
                 month: "short",
                 day: "numeric",

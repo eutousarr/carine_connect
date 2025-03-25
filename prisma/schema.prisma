@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("carina_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model Article {
@@ -17,18 +17,23 @@ model Article {
   authorId    String?
   authorName  String?
   authorImage String?
+
+  @@map("articles")
 }
 
-model BlogPost {
+model Post {
   id          String   @id @default(cuid())
   title       String
   content     String
+  slug        String   @unique
   imageUrl    String
   authorId    String
   authorName  String
   authorImage String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("posts")
 }
 
 model Contact {
@@ -41,31 +46,32 @@ model Contact {
   adresse     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("contacts")
 }
 
 model Eleve {
-  id           String        @id @default(cuid())
+  id           Int           @id @default(autoincrement())
   matricule    String
   nom          String
   prenom       String
-  sexe         String
+  sexe         Sexe
   datenais     String?
   lieunais     String?
   adresse      String?
   email        String?
   phone        String?
   photo        String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  updatedAt    DateTime?     @updatedAt
   inscriptions Inscription[]
   notes        Note[]
-  resultats    Resultat[]
+  resultats    Resultat[]    @relation("EleveToResultat")
 
   @@map("eleves")
 }
 
 model Student {
-  id        String   @id @default(cuid())
+  id        Int     @id @default(autoincrement())
   matricule String
   nom       String
   prenom    String
@@ -76,8 +82,6 @@ model Student {
   email     String?
   phone     String?
   photo     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@map("students")
 }
@@ -91,7 +95,7 @@ model Inscription {
   moyenne1  Float?   @default(0)
   moyenne2  Float?   @default(0)
   moyenne3  Float?   @default(0)
-  eleveId   String
+  eleveId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime
   eleves    Eleve    @relation(fields: [eleveId], references: [id])
@@ -99,55 +103,87 @@ model Inscription {
   @@map("inscriptions")
 }
 
-model Trimestre {
-  id      String @id @default(cuid())
-  libelle String
-  notes   Note[]
+model Evaluation {
+  id        Int        @id @default(autoincrement())
+  name      String
+  slug      String
+  notes     Note[]     @relation("EvaluationToNote")
+  resultats Resultat[] @relation("EvaluationToResultat")
 
-  @@map("trimestres")
+  @@map("evaluations")
+}
+
+model Discipline {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  matieres Matiere[]
+
+  @@index([slug])
+  @@map("disciplines")
+}
+
+model Matiere {
+  id           Int        @id @default(autoincrement())
+  name         String
+  slug         String     @unique
+  coefficient  Int        @default(1)
+  disciplineId Int
+  discipline   Discipline @relation(fields: [disciplineId], references: [id])
+  notes        Note[]     @relation("MatiereToNote")
+
+  @@index([slug])
+  @@map("matieres")
 }
 
 model Note {
-  id            String    @id @default(cuid())
-  eleveId       String
-  annee         Annee
-  trimestreId   String   
-  trimestre     Trimestre @relation(fields: [trimestreId], references: [id])
-  ortho         Float?
-  production    Float?
-  vocabulaire   Float?
-  grammaire     Float?
-  lecture       Float?
-  conjugaison   Float?
-  ecriture      Float?
-  numeriques    Float?
-  mesures       Float?
-  geometrie     Float?
-  probleme      Float?
-  histoire      Float?
-  geographie    Float?
-  ist           Float?
-  vivreEnsemble Float?
-  vivreMilieu   Float?
-  dessin        Float?
-  recitation    Float?
-  total         Float?
-  moyenne       Float?
-  rang          Int?
-  eleves        Eleve     @relation(fields: [eleveId], references: [id])
+  id           Int        @id @default(autoincrement())
+  eleveId      Int
+  eleves       Eleve      @relation(fields: [eleveId], references: [id])
+  annee        Annee
+  score        Int        @default(0)
+  matiereId    Int
+  evaluationId Int
+  evaluation   Evaluation @relation("EvaluationToNote", fields: [evaluationId], references: [id])
+  matiere      Matiere    @relation("MatiereToNote", fields: [matiereId], references: [id])
+
+  // ortho         Float?
+  // production    Float?
+  // vocabulaire   Float?
+  // grammaire     Float?
+  // lecture       Float?
+  // conjugaison   Float?
+  // ecriture      Float?
+  // numeriques    Float?
+  // mesures       Float?
+  // geometrie     Float?
+  // probleme      Float?
+  // histoire      Float?
+  // geographie    Float?
+  // ist           Float?
+  // vivreEnsemble Float?
+  // vivreMilieu   Float?
+  // dessin        Float?
+  // recitation    Float?
+  // total         Float?
+  // moyenne       Float?
+  // rang          Int?
 
   @@map("notes")
 }
 
 model Resultat {
-  id          String   @id @default(cuid())
-  eleveId     String
-  annee       String?
-  moyenne     Float?
-  rang        Int?
-  decision    Conseil? @default(Passe)
-  observation String?
-  eleves      Eleve    @relation(fields: [eleveId], references: [id])
+  id           Int        @id @default(autoincrement())
+  eleveId      Int
+  annee        String?
+  evaluationId Int
+  total        Int        @default(0)
+  moyenne      Float?
+  rang         Int?
+  observation  String?
+  decision     Conseil?   @default(Passe)
+  eleve        Eleve      @relation("EleveToResultat", fields: [eleveId], references: [id])
+  evaluation   Evaluation @relation("EvaluationToResultat", fields: [evaluationId], references: [id])
 
   @@map("resultats")
 }
@@ -178,4 +214,37 @@ enum Conseil {
   Redouble
   examen
   Exclu
+}
+
+enum Sexe {
+  Masculin
+  Feminin
+}
+
+enum SlugMatiere {
+  orthographe
+  productionEcrite
+  vocabulaire
+  grammaire
+  lecture
+  conjugaison
+  ecriture
+  numeriques
+  mesures
+  geometrie
+  probleme
+  histoire
+  geographie
+  ist
+  vivreEnsemble
+  vivreMilieu
+  dessin
+  recitation
+}
+
+enum SlugDiscipline {
+  LanguageEtCompréhension
+  Mathématiques
+  ESVS
+  ESPA
 }

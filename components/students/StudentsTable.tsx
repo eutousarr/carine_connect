@@ -6,41 +6,47 @@ import {
   TableHeader,
   TableRow,
   TableCaption,
-} from '@/components/ui/table';
-import Link from 'next/link';
+} from "@/components/ui/table";
+import Link from "next/link";
 // import students from '@/data/students';
-import { prisma } from '@/app/utils/db';
-import {moyenneFixed} from '@/lib/utils';
+import { prisma } from "@/app/utils/db";
+import { moyenneFixed } from "@/lib/utils";
 interface StudentsTableProps {
   limit?: number;
   title?: string;
 }
 
-async function getStudents(){
+async function getStudents() {
   const students = await prisma.eleve.findMany({
     include: {
-      notes:true
-    }
+      notes: true,
+      resultats: true,
+    },
   });
-  return students
+  return students;
 }
 
 const StudentsTable = async ({ limit, title }: StudentsTableProps) => {
   // Sort students in dec order based on date
   const students = await getStudents();
-  console.log(students[0].notes)
   const sortedStudents = [...students].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    (a, b) =>
+      new Date(b.updatedAt || 0).getTime() -
+      new Date(a.updatedAt || 0).getTime()
   );
 
   // Filter posts to limit
-  const filteredStudents = limit ? sortedStudents.slice(0, limit) : sortedStudents;
+  const filteredStudents = limit
+    ? sortedStudents.slice(0, limit)
+    : sortedStudents;
 
   return (
-    <div className='mt-10'>
-      <h3 className='text-2xl mb-4 font-semibold'>{title ? title : 'Students'}</h3>
+    <div className="mt-10">
+      <h3 className="text-2xl mb-4 font-semibold">
+        {title ? title : "Students"}
+      </h3>
       <Table>
-        <TableCaption>A list students</TableCaption>
+        <TableCaption>Students</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>IEN</TableHead>
@@ -49,6 +55,7 @@ const StudentsTable = async ({ limit, title }: StudentsTableProps) => {
             <TableHead>Date</TableHead>
             <TableHead>Lieu</TableHead>
             <TableHead>Sexe</TableHead>
+            <TableHead>Total</TableHead>
             <TableHead>Moyenne</TableHead>
             <TableHead>Rang</TableHead>
             <TableHead>View</TableHead>
@@ -62,16 +69,19 @@ const StudentsTable = async ({ limit, title }: StudentsTableProps) => {
               <TableCell>{student.prenom}</TableCell>
               <TableCell>{student.datenais}</TableCell>
               <TableCell>{student.lieunais}</TableCell>
-              <TableCell>{student.sexe === 'M' ? 'Garçon': "Fille"}</TableCell>
               <TableCell>
-                {student.notes[0]["moyenne"] !== null
-                  ? moyenneFixed(student.notes[0]["moyenne"], 2)
+                {student.sexe}
+              </TableCell>
+              <TableCell>{student.resultats[0]["total"]}</TableCell>
+              <TableCell>
+                {student.resultats[0]["moyenne"] !== null
+                  ? moyenneFixed(student.resultats[0]["moyenne"] ?? 0, 2)
                   : "N/A"}
               </TableCell>
-                  <TableCell>{student.notes[0]["rang"]} è</TableCell>
+              <TableCell>{student.resultats[0]["rang"]} è</TableCell>
               <TableCell>
                 <Link href={`/students/${student.id}`}>
-                  <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
+                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
                     Bulletin
                   </button>
                 </Link>

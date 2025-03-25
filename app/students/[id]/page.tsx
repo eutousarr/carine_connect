@@ -1,31 +1,48 @@
 import { prisma } from "@/app/utils/db";
-import EleveNotes from "@/app/students/_[matricule]/eleveNotes"; // Ensure EleveNotes is a valid React component
+// import EleveNotes from "@/app/students/_[matricule]/eleveNotes"; // Ensure EleveNotes is a valid React component
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Bulletin from "@/components/bulletin";
+import { Eleve } from "@/types/students"; // Adjust the path to where Eleve is defined
 
 interface Params {
   params: Promise<{
-    id: string;
+    id: number;
   }>;
+  eleve: Eleve
 }
-export async function getEleveById(id: string) {
-  const eleve = await prisma.eleve.findFirst({
+export async function getEleveById(id: number) {
+  
+  const eleve = await prisma.eleve.findUnique({
     where: {
-      id: id,
+      id: Number(id),
     },
     include: {
       notes: {
-        orderBy:{
-          id: 'asc'
+        where:{
+          evaluationId: 1,
         }
-      }
+      },
+      resultats:true,
+      inscriptions: true,
     }
   });
 
   if (!eleve) {
     throw new Error("Student not found");
   }
-  return eleve;
+
+  const transformedEleve = {
+    ...eleve,
+    notes: eleve.notes.map(note => ({
+      ...note,
+      eleveId: note.eleveId,
+    })),
+    resultats: eleve.resultats || [], // Ensure resultats is an array
+  };
+
+  console.log("student", transformedEleve);
+  return transformedEleve as unknown as Eleve; // Convert to unknown first, then to Eleve
 }
 export default async function NotesRoute({ params }: Params) {
   const { id } = await params;
@@ -33,7 +50,7 @@ export default async function NotesRoute({ params }: Params) {
   return (
     <div>
       {data ? (
-        <EleveNotes eleve={data} />
+        <Bulletin eleve={data} />
       ) : (
         <div>Student not found</div>
       )}
@@ -43,13 +60,13 @@ export default async function NotesRoute({ params }: Params) {
 
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const params = await props.params;
-  const eleve = await getEleveById(params.id as string);
+  const eleve = await getEleveById(params.id as number);
 
   if (!eleve) {
     return notFound();
   }
 
-  const title = `Notes de ${(await eleve).prenom}_${(await eleve).nom}`;
+  const title = `Notes de ${eleve.prenom}_${eleve.nom}`;
 
   return {
     title,

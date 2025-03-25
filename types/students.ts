@@ -1,6 +1,5 @@
 export interface Eleve {
-  id: string;
-  createdAt: Date;
+  id: number;
   updatedAt: Date;
   matricule: string;
   nom: string;
@@ -13,30 +12,13 @@ export interface Eleve {
   phone: string | null;
   photo: string | null;
   notes: Array<{
-    id: string;
-    eleveId: string;
+    id: number;
+    eleveId: number;
     annee: string;
-    trimestreId: string;
-    ortho: number | null;
-    production: number | null;
-    vocabulaire: number | null;
-    grammaire: number | null;
-    lecture: number | null;
-    conjugaison: number | null;
-    ecriture: number | null;
-    numeriques: number | null;
-    mesures: number | null;
-    geometrie: number | null;
-    probleme: number | null;
-    histoire: number | null;
-    geographie: number | null;
-    ist: number | null;
-    vivreEnsemble: number | null;
-    vivreMilieu: number | null;
-    dessin: number | null;
-    recitation: number | null;
-    total: number | null;
-    moyenne: number | null;
-    rang: number | null;
+    evaluationId: number;
+    matiereId: number;
+    score: number;
   }>;
+  resultats: {id:number, total: number; moyenne: number; rang: number, eleveId: number, evaluationId: number }[];
+
 }
